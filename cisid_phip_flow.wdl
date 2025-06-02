@@ -79,6 +79,10 @@ task run_phippery_flow{
         #!/bin/bash
         set -e
 
+        pwd
+        
+        ls .
+
         cp ~{input_sample_table} /phipflow/data/sample_table.csv
         cp ~{input_peptide_table} /phipflow/data/peptide_table.csv
 
