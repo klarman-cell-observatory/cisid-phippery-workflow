@@ -101,7 +101,7 @@ task run_phippery_flow{
 
         CODE
 
-        CMD = "nextflow run main.nf"
+        CMD="nextflow run main.nf"
 
         # Read Length
         if [[read_length -ne 125 ]]; then
