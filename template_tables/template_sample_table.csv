@@ -1,0 +1,3 @@
+control_status,sample_ID,cloud_filepath,fastq_filepath
+library,sample1,gs://,data/seq/
+beads_only,sample2,gs://,data/seq/
