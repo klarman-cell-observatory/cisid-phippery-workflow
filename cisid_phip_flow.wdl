@@ -59,7 +59,7 @@ task run_phippery_flow{
         Int oligo_tile_length = 117
         Int n_mismatches = 2
         String output_prefix = "root/added/to/outs"
-        Boolean replicate_sequence_counts = true,
+        Boolean replicate_sequence_counts = true
         Boolean run_beer = false
         Boolean run_cpm_enrichment = true
         Boolean run_z_score = true
