@@ -28,19 +28,19 @@ workflow phippery_flow{
             input_peptide_table = input_peptide_table,
             input_fastq_dir = input_fastq_dir,
             output_directory = output_directory,
-            read_length = read_length
-            oligo_tile_length = oligo_tile_length
-            n_mismatches = n_mismatches
-            output_prefix = output_prefix
-            replicate_sequence_counts = replicate_sequence_counts
-            run_beer = run_beer
-            run_cpm_enrichment = run_cpm_enrichment
-            run_z_score = run_z_score
-            zone = zone
-            memory = memory
-            num_cpu = num_cpu
-            preemptible = preemptible
-            disk_space = disk_space
+            read_length = read_length,
+            oligo_tile_length = oligo_tile_length,
+            n_mismatches = n_mismatches,
+            output_prefix = output_prefix,
+            replicate_sequence_counts = replicate_sequence_counts,
+            run_beer = run_beer,
+            run_cpm_enrichment = run_cpm_enrichment,
+            run_z_score = run_z_score,
+            zone = zone,
+            memory = memory,
+            num_cpu = num_cpu,
+            preemptible = preemptible,
+            disk_space = disk_space,
             docker_registry = docker_registry
     }
 
@@ -59,7 +59,7 @@ task run_phippery_flow{
         Int oligo_tile_length = 117
         Int n_mismatches = 2
         String output_prefix = "root/added/to/outs"
-        Boolean replicate_sequence_counts = true
+        Boolean replicate_sequence_counts = true,
         Boolean run_beer = false
         Boolean run_cpm_enrichment = true
         Boolean run_z_score = true
