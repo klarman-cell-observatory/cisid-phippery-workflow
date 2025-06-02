@@ -2,4 +2,4 @@ version: 1.2
 workflows:
 name: cisid_phip_flow
   subclass: WDL
-  primaryDescriptorPath:cisid_phip_flow.wdl
+  primaryDescriptorPath:/cisid_phip_flow.wdl
