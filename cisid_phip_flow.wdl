@@ -2,24 +2,24 @@ version 1.0
 
 workflow phippery_flow{
     input {
-        File input_sample_table = "some/path/in/cloud"
-        File input_peptide_table = "some/path/in/cloud"
-        String input_fastq_dir = "some/path/in/cloud"
-        String output_directory = "some/path/in/cloud"
+        File input_sample_table
+        File input_peptide_table
+        String input_fastq_dir
+        String output_directory
         Int read_length = 125
         Int oligo_tile_length = 117
         Int n_mismatches = 2
-        String output_prefix = "root/added/to/outs"
+        String output_prefix = "data"
         Boolean replicate_sequence_counts = true
-        Boolean run_beer = false
-        Boolean run_cpm_enrichment = true
-        Boolean run_z_score = true
+        Boolean run_beer 
+        Boolean run_cpm_enrichment 
+        Boolean run_z_score
         String zone = "us-central1-d"
         String memory = "32G"
         Int num_cpu = 8
         Int preemptible = 2
         Int disk_space = 250
-        String docker_registry = "whereverimhosting"
+        String docker_registry
     }
 
     call run_phippery_flow {
