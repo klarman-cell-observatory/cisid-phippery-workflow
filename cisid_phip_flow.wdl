@@ -139,7 +139,7 @@ task run_phippery_flow{
         preemptible : preemptible
         bootDiskSizeGb: 10
         disks: "local-disk ${disk_space} HDD"
-        docker: "${docker_registry}/cisid_phippery_workflow"
+        docker: "${docker_registry}"
         cpu: num_cpu
         zone: zone
         memory: memory
