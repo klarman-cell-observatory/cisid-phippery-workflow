@@ -79,15 +79,9 @@ task run_phippery_flow{
         #!/bin/bash
         set -e
 
-        pwd
-        
-        ls .
-
         cd /phipflow/
 
-        echo "We are here in"
-
-        pwd
+        ls .
 
         cp ~{input_sample_table} /phipflow/data/sample_table.csv
         cp ~{input_peptide_table} /phipflow/data/peptide_table.csv
