@@ -72,7 +72,7 @@ task run_phippery_flow{
     }
 
     output {
-        String outs_files = ${output_directory}/${output_prefix}_outs.txt
+        String outs_files = "${output_directory}/${output_prefix}_outs.txt"
     }
 
     command <<<
@@ -127,6 +127,12 @@ task run_phippery_flow{
         #Transfer results back into the bucket
 
         gcloud storage cp -r /phipflow/results/ ~{output_directory}
+
+        if [[ -f "${output_directory}/${output_prefix}_outs.txt" ]]; then
+            echo "File exists"
+        else
+            touch "${output_directory}/${output_prefix}_outs.txt"  # Create empty fallback
+        fi
     >>>
 
     runtime {
