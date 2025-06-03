@@ -104,22 +104,22 @@ task run_phippery_flow{
         CMD="nextflow run main.nf --ansi-log false"
 
         # Read Length
-        if [[~{read_length} -ne 125 ]]; then
+        if [[ ~{read_length} -ne 125 ]]; then
             CMD="$CMD --read_length ~{read_length}"
         fi
         #Oligo_tile_length
-        if [[~{oligo_tile_length} -ne 117 ]]; then
+        if [[ ~{oligo_tile_length} -ne 117 ]]; then
             CMD="$CMD --oligo_tile_length ~{oligo_tile_length}"
         fi
         #Number of Mismatches
-        if [[~{n_mismatches} -ne 2 ]]; then
+        if [[ ~{n_mismatches} -ne 2 ]]; then
             CMD="$CMD --n_mismatches ~{n_mismatches}"
         fi
         #Optional Run parameters
-        [[~{replicate_sequence_counts} == true ]] && CMD="$CMD --replicate_sequence_counts"
-        [[~{run_beer} == true ]] && CMD="$CMD --run_BEER" 
-        [[~{run_cpm_enrichment} == true ]] && CMD="$CMD --run_cpm_enr_workflow"
-        [[~{run_z_score} == true ]] && CMD="$CMD --run_z_score_fit_predict"
+        [[ ~{replicate_sequence_counts} == true ]] && CMD="$CMD --replicate_sequence_counts"
+        [[ ~{run_beer} == true ]] && CMD="$CMD --run_BEER" 
+        [[ ~{run_cpm_enrichment} == true ]] && CMD="$CMD --run_cpm_enr_workflow"
+        [[ ~{run_z_score} == true ]] && CMD="$CMD --run_z_score_fit_predict"
 
         echo "Running: $CMD"
         eval $CMD
