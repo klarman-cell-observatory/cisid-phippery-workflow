@@ -97,15 +97,11 @@ task run_phippery_flow{
         print(df['cloud_filepath'])
 
         for i, j in zip(list(df['sample_ID']), list(df['cloud_filepath'])):
-            print(f"Moving {i} to /phipflow/data/seq/")
             subprocess.run(f"gcloud storage cp {j} /phipflow/data/seq/", shell=True)
         
-        #Validation for error logs
-        print(os.listdir("/phipflow/data/seq/"))
-
         CODE
 
-        CMD="nextflow run main.nf"
+        CMD="nextflow run main.nf --ansi-log false"
 
         # Read Length
         if [[read_length -ne 125 ]]; then
