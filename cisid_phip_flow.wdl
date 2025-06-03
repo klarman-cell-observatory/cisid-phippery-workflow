@@ -141,5 +141,6 @@ task run_phippery_flow{
         cpu: num_cpu
         zone: zone
         memory: memory
+        continueOnReturnCode: [0, 1]
     }
 }
