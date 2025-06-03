@@ -135,7 +135,6 @@ task run_phippery_flow{
     >>>
 
     runtime {
-        preemptible : preemptible
         bootDiskSizeGb: 10
         disks: "local-disk ${disk_space} HDD"
         docker: "${docker_registry}"
