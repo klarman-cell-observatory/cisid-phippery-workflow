@@ -94,7 +94,6 @@ task run_phippery_flow{
 
         #Moving required R1 Fastqs to the specified run folder
         df = pd.read_csv("/phipflow/data/sample_table.csv")
-        print(df['cloud_filepath'])
 
         for i, j in zip(list(df['sample_ID']), list(df['cloud_filepath'])):
             subprocess.run(f"gcloud storage cp {j} /phipflow/data/seq/ --quiet", shell=True)
