@@ -96,7 +96,7 @@ task run_phippery_flow{
         df = pd.read_csv("/phipflow/data/sample_table.csv")
 
         for i, j in zip(list(df['sample_ID']), list(df['cloud_filepath'])):
-            subprocess.run(f"gcloud storage cp {j} /phipflow/data/seq/ --quiet", shell=True)
+            subprocess.run(f"gcloud storage cp {j} /phipflow/data/seq/ --quiet > /dev/null 2>&1", shell=True)
         
         CODE
 
@@ -135,7 +135,7 @@ task run_phippery_flow{
     >>>
 
     runtime {
-        bootDiskSizeGb: 10
+        bootDiskSizeGb: 15
         disks: "local-disk ${disk_space} HDD"
         docker: "${docker_registry}"
         cpu: num_cpu
