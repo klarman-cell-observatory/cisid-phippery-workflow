@@ -97,7 +97,7 @@ task run_phippery_flow{
         print(df['cloud_filepath'])
 
         for i, j in zip(list(df['sample_ID']), list(df['cloud_filepath'])):
-            subprocess.run(f"gcloud storage cp {j} /phipflow/data/seq/", shell=True)
+            subprocess.run(f"gcloud storage cp {j} /phipflow/data/seq/ --quiet", shell=True)
         
         CODE
 
