@@ -101,7 +101,7 @@ task run_phippery_flow{
         CODE
 
         df -h 
-        
+
         CMD="nextflow run main.nf --ansi-log false"
 
         # Read Length
@@ -143,6 +143,5 @@ task run_phippery_flow{
         cpu: num_cpu
         zone: zone
         memory: memory
-        continueOnReturnCode: [0, 1]
     }
 }
