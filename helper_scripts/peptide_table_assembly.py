@@ -1,5 +1,5 @@
 import re
-import pandas
+import pandas as pd
 
 with open("./new_library.fasta") as f:
     peptides = f.read()

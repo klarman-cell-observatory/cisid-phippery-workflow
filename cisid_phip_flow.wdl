@@ -18,7 +18,7 @@ workflow phippery_flow{
         String memory = "32G"
         Int num_cpu = 8
         Int preemptible = 2
-        Int disk_space = 250
+        Int disk_space = 2500
         String docker_registry
     }
 
@@ -101,7 +101,7 @@ task run_phippery_flow{
         CODE
 
         df -h 
-
+        
         CMD="nextflow run main.nf --ansi-log false"
 
         # Read Length
@@ -143,5 +143,6 @@ task run_phippery_flow{
         cpu: num_cpu
         zone: zone
         memory: memory
+        continueOnReturnCode: [0, 1]
     }
 }
