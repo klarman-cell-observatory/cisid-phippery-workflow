@@ -18,7 +18,7 @@ workflow phippery_flow{
         String memory = "32G"
         Int num_cpu = 8
         Int preemptible = 2
-        Int disk_space = 2500
+        Int disk_space = 250
         String docker_registry
     }
 
@@ -137,7 +137,7 @@ task run_phippery_flow{
     >>>
 
     runtime {
-        bootDiskSizeGb: 30
+        bootDiskSizeGb: 250
         disks: "local-disk ${disk_space} HDD"
         docker: "${docker_registry}"
         cpu: num_cpu
