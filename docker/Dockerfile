@@ -96,9 +96,17 @@ RUN Rscript -e 'install.packages(c("BiocManager", "rjags"), repos="https://cloud
     Rscript -e 'BiocManager::install("edgeR")' && \
     Rscript -e 'BiocManager::install("beer")'
 
-# Install BBTools (BBMerge for paired-end read merging) from GitHub mirror
-RUN git clone --depth 1 https://github.com/BioInfoTools/BBMap.git /opt/bbmap && \
-    chmod +x /opt/bbmap/*.sh
+# Install BBTools (BBMerge) — locate bbmerge.sh wherever it lands in the clone
+RUN git clone --depth 1 https://github.com/BioInfoTools/BBMap.git /tmp/bbmap_clone && \
+    BBSCRIPT=$(find /tmp/bbmap_clone -name "bbmerge.sh" 2>/dev/null | head -1) && \
+    if [ -z "$BBSCRIPT" ]; then \
+        echo "ERROR: bbmerge.sh not found. Repo tree:"; \
+        find /tmp/bbmap_clone -maxdepth 4 -type f | sort | head -40; \
+        exit 1; \
+    fi && \
+    mv "$(dirname "$BBSCRIPT")" /opt/bbmap && \
+    find /opt/bbmap -name "*.sh" -exec chmod +x {} + && \
+    rm -rf /tmp/bbmap_clone
 ENV PATH="/opt/bbmap:${PATH}"
 
 # Set working directory
