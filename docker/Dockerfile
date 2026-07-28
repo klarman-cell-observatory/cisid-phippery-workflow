@@ -100,6 +100,13 @@ RUN Rscript -e 'install.packages(c("BiocManager", "rjags"), repos="https://cloud
     Rscript -e 'BiocManager::install("edgeR")' && \
     Rscript -e 'BiocManager::install("beer")'
 
+# Install BBTools (BBMerge for paired-end read merging)
+RUN curl -L https://sourceforge.net/projects/bbtools/files/BBMap_38.96.tar.gz/download \
+    -o /tmp/bbmap.tar.gz && \
+    tar -xzf /tmp/bbmap.tar.gz -C /opt/ && \
+    rm /tmp/bbmap.tar.gz
+ENV PATH="/opt/bbmap:${PATH}"
+
 # Set working directory
 WORKDIR /phipflow
 

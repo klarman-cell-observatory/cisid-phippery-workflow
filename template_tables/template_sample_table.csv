@@ -1,3 +1,3 @@
-control_status,sample_ID,cloud_filepath,fastq_filepath
-library,sample1,gs://,data/seq/
-beads_only,sample2,gs://,data/seq/
+control_status,sample_ID,R1_cloud_filepath,R2_cloud_filepath
+library,sample1,gs://bucket/sample1_S1_L001_R1_001.fastq.gz,gs://bucket/sample1_S1_L001_R2_001.fastq.gz
+beads_only,sample2,gs://bucket/sample2_S2_L001_R1_001.fastq.gz,gs://bucket/sample2_S2_L001_R2_001.fastq.gz

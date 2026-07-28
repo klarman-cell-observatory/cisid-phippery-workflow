@@ -23,9 +23,9 @@ nextflow.enable.dsl = 2
 /*
  * Define the default parameters - example data get's run by default
  */ 
-params.sample_table     = params.sample_table ?: "/phipflow_T/data/sample_table.csv"
-params.peptide_table    = params.peptide_table ?: "/phipflow_T/data/peptide_table.csv"
-params.reads_prefix     = params.reads_prefix ?: "/phipflow_T"
+params.sample_table     = params.sample_table ?: "/phipflow/data/sample_table.csv"
+params.peptide_table    = params.peptide_table ?: "/phipflow/data/peptide_table.csv"
+params.reads_prefix     = params.reads_prefix ?: "/phipflow"
 params.results          = "$PWD/results/"
 
 log.info """\

@@ -4,15 +4,14 @@ workflow phippery_flow{
     input {
         File input_sample_table
         File input_peptide_table
-        String input_fastq_dir
         String output_directory
         Int read_length = 125
         Int oligo_tile_length = 117
         Int n_mismatches = 2
         String output_prefix = "data"
         Boolean replicate_sequence_counts = true
-        Boolean run_beer 
-        Boolean run_cpm_enrichment 
+        Boolean run_beer
+        Boolean run_cpm_enrichment
         Boolean run_z_score
         String zone = "us-central1-d"
         String memory = "32G"
@@ -26,7 +25,6 @@ workflow phippery_flow{
         input:
             input_sample_table = input_sample_table,
             input_peptide_table = input_peptide_table,
-            input_fastq_dir = input_fastq_dir,
             output_directory = output_directory,
             read_length = read_length,
             oligo_tile_length = oligo_tile_length,
@@ -51,24 +49,23 @@ workflow phippery_flow{
 
 task run_phippery_flow{
     input {
-        File input_sample_table = "some/path/in/cloud"
-        File input_peptide_table = "some/path/in/cloud"
-        String input_fastq_dir = "some/path/in/cloud"
-        String output_directory = "some/path/in/cloud"
+        File input_sample_table
+        File input_peptide_table
+        String output_directory
         Int read_length = 125
         Int oligo_tile_length = 117
         Int n_mismatches = 2
-        String output_prefix = "root/added/to/outs"
+        String output_prefix = "data"
         Boolean replicate_sequence_counts = true
         Boolean run_beer = false
         Boolean run_cpm_enrichment = true
         Boolean run_z_score = true
         String zone
         String memory
-        String num_cpu
+        Int num_cpu
         Int preemptible
         Int disk_space
-        String docker_registry  
+        String docker_registry
     }
 
     output {
@@ -77,63 +74,94 @@ task run_phippery_flow{
 
     command <<<
         #!/bin/bash
-        set -e
+        set -euo pipefail
 
         cd /phipflow/
-
-        ls .
 
         cp ~{input_sample_table} /phipflow/data/sample_table.csv
         cp ~{input_peptide_table} /phipflow/data/peptide_table.csv
 
-        python <<CODE
+        mkdir -p /phipflow/data/seq /phipflow/data/tmp
 
-        import pandas as pd
-        import os
-        import subprocess
+        python3 <<CODE
+import pandas as pd
+import os
+import subprocess
+import sys
 
-        #Moving required R1 Fastqs to the specified run folder
-        df = pd.read_csv("/phipflow/data/sample_table.csv")
+df = pd.read_csv("/phipflow/data/sample_table.csv")
 
-        for i, j in zip(list(df['sample_ID']), list(df['cloud_filepath'])):
-            subprocess.run(f"gcloud storage cp {j} /phipflow/data/seq/ --quiet > /dev/null 2>&1", shell=True)
-        
-        CODE
+required_cols = {"sample_ID", "R1_cloud_filepath", "R2_cloud_filepath"}
+missing = required_cols - set(df.columns)
+if missing:
+    print(f"ERROR: sample table is missing columns: {missing}", file=sys.stderr)
+    sys.exit(1)
 
-        df -h 
-        
+seq_dir = "/phipflow/data/seq"
+tmp_dir = "/phipflow/data/tmp"
+
+for _, row in df.iterrows():
+    sample_id = str(row["sample_ID"])
+    r1_gcs    = row["R1_cloud_filepath"]
+    r2_gcs    = row["R2_cloud_filepath"]
+
+    r1_local  = f"{tmp_dir}/{sample_id}_R1.fastq.gz"
+    r2_local  = f"{tmp_dir}/{sample_id}_R2.fastq.gz"
+    merged    = f"{seq_dir}/{sample_id}.fastq.gz"
+    log_file  = f"{seq_dir}/{sample_id}_bbmerge.log"
+
+    print(f"[{sample_id}] Downloading R1...")
+    subprocess.run(["gcloud", "storage", "cp", r1_gcs, r1_local], check=True)
+
+    print(f"[{sample_id}] Downloading R2...")
+    subprocess.run(["gcloud", "storage", "cp", r2_gcs, r2_local], check=True)
+
+    print(f"[{sample_id}] Merging R1+R2 with BBMerge...")
+    result = subprocess.run(
+        f"bbmerge.sh in={r1_local} in2={r2_local} out={merged} outu=/dev/null 2>{log_file}",
+        shell=True
+    )
+    if result.returncode != 0:
+        print(f"  WARNING: BBMerge returned non-zero for {sample_id} — check {log_file}")
+
+    n_merged = int(subprocess.check_output(f"zcat {merged} | wc -l", shell=True)) // 4
+    print(f"[{sample_id}] {n_merged} merged reads written to {merged}")
+
+    os.remove(r1_local)
+    os.remove(r2_local)
+
+print("All samples downloaded and merged.")
+CODE
+
+        df -h
+
         CMD="nextflow run main.nf --ansi-log false"
+        CMD="$CMD --sample_table /phipflow/data/sample_table.csv"
+        CMD="$CMD --peptide_table /phipflow/data/peptide_table.csv"
+        CMD="$CMD --reads_prefix /phipflow"
 
-        # Read Length
+        # Read length (only pass if non-default)
         if [[ ~{read_length} -ne 125 ]]; then
             CMD="$CMD --read_length ~{read_length}"
         fi
-        #Oligo_tile_length
         if [[ ~{oligo_tile_length} -ne 117 ]]; then
             CMD="$CMD --oligo_tile_length ~{oligo_tile_length}"
         fi
-        #Number of Mismatches
         if [[ ~{n_mismatches} -ne 2 ]]; then
             CMD="$CMD --n_mismatches ~{n_mismatches}"
         fi
-        #Optional Run parameters
+
         [[ ~{replicate_sequence_counts} == true ]] && CMD="$CMD --replicate_sequence_counts"
-        [[ ~{run_beer} == true ]] && CMD="$CMD --run_BEER" 
-        [[ ~{run_cpm_enrichment} == true ]] && CMD="$CMD --run_cpm_enr_workflow"
-        [[ ~{run_z_score} == true ]] && CMD="$CMD --run_z_score_fit_predict"
+        [[ ~{run_beer} == true ]]                  && CMD="$CMD --run_BEER"
+        [[ ~{run_cpm_enrichment} == true ]]        && CMD="$CMD --run_cpm_enr_workflow"
+        [[ ~{run_z_score} == true ]]               && CMD="$CMD --run_z_score_fit_predict"
 
         echo "Running: $CMD"
         eval $CMD
 
-        #Transfer results back into the bucket
-
         gcloud storage cp -r /phipflow/results/ ~{output_directory}
 
-        if [[ -f "${output_directory}/${output_prefix}_outs.txt" ]]; then
-            echo "File exists"
-        else
-            touch "${output_directory}/${output_prefix}_outs.txt"  # Create empty fallback
-        fi
+        touch "~{output_directory}/~{output_prefix}_outs.txt"
     >>>
 
     runtime {
@@ -143,6 +171,6 @@ task run_phippery_flow{
         cpu: num_cpu
         zone: zone
         memory: memory
-        continueOnReturnCode: [0, 1]
+        preemptible: preemptible
     }
 }
