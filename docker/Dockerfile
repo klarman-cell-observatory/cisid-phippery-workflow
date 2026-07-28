@@ -82,29 +82,18 @@ RUN apt-get update && apt-get install -y software-properties-common dirmngr gnup
     apt-get update && \
     apt-get install -y r-base
 
-# Install JAGS from source
-WORKDIR /tmp
-
-ADD https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Source/JAGS-4.3.2.tar.gz/download JAGS-4.3.2.tar.gz
-
-RUN tar -xzf JAGS-4.3.2.tar.gz && \
-    cd JAGS-4.3.2 && \
-    ./configure && \
-    make && \
-    make install && \
-    ldconfig && \
-    cd / && rm -rf /tmp/*
+# Install JAGS via apt (4.3.0 in Ubuntu 20.04 focal — compatible with rjags and beer)
+RUN apt-get update && apt-get install -y jags && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install R packages: rjags, edgeR, BEER (plus BiocManager)
 RUN Rscript -e 'install.packages(c("BiocManager", "rjags"), repos="https://cloud.r-project.org")' && \
     Rscript -e 'BiocManager::install("edgeR")' && \
     Rscript -e 'BiocManager::install("beer")'
 
-# Install BBTools (BBMerge for paired-end read merging)
-RUN curl -L https://sourceforge.net/projects/bbtools/files/BBMap_38.96.tar.gz/download \
-    -o /tmp/bbmap.tar.gz && \
-    tar -xzf /tmp/bbmap.tar.gz -C /opt/ && \
-    rm /tmp/bbmap.tar.gz
+# Install BBTools (BBMerge for paired-end read merging) from GitHub mirror
+RUN git clone --depth 1 https://github.com/BioInfoTools/BBMap.git /opt/bbmap && \
+    chmod +x /opt/bbmap/*.sh
 ENV PATH="/opt/bbmap:${PATH}"
 
 # Set working directory
