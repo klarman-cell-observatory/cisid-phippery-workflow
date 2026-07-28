@@ -42,10 +42,13 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+# Pin Cython<3.0 so POT's Cython extensions compile correctly with phippery 1.3.1
+RUN pip install "Cython<3.0" "numpy<2.0"
+
 # install phippery
 RUN pip install git+https://github.com/matsengrp/phippery@1.3.1
 
-RUN pip3 install pandas
+RUN pip install pandas
 
 # install pre-build binary Bowtie1.3
 RUN curl -fksSL https://sourceforge.net/projects/bowtie-bio/files/bowtie/1.3.1/bowtie-1.3.1-linux-x86_64.zip \
