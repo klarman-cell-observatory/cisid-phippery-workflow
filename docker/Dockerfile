@@ -42,10 +42,12 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Pin Cython<3.0 so POT's Cython extensions compile correctly with phippery 1.3.1
+# POT 0.9.6 uses Cython 2 buffer syntax; pin Cython<3 then build POT without
+# build isolation so it uses our pinned Cython instead of pip's isolated env.
 RUN pip install "Cython<3.0" "numpy<2.0"
+RUN pip install --no-build-isolation "POT==0.9.6.post1"
 
-# install phippery
+# install phippery (POT already satisfied above, skipped)
 RUN pip install git+https://github.com/matsengrp/phippery@1.3.1
 
 RUN pip install pandas
