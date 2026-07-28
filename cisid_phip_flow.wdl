@@ -116,16 +116,35 @@ for _, row in df.iterrows():
     print(f"[{sample_id}] Downloading R2...")
     subprocess.run(["gcloud", "storage", "cp", r2_gcs, r2_local], check=True)
 
-    print(f"[{sample_id}] Merging R1+R2 with BBMerge...")
+    # Run BBMerge keeping both merged (overlapping) and unmerged reads.
+    # Unmerged reads are kept because short reads on long oligos (e.g. 60bp on
+    # 168bp insert) won't overlap — discarding them would produce zero counts.
+    print(f"[{sample_id}] Running BBMerge (unmerged reads retained)...")
+    merged_tmp  = f"{seq_dir}/{sample_id}_merged.fastq.gz"
+    unmerged_r1 = f"{seq_dir}/{sample_id}_R1u.fastq.gz"
+    unmerged_r2 = f"{seq_dir}/{sample_id}_R2u.fastq.gz"
+
     result = subprocess.run(
-        f"bbmerge.sh in={r1_local} in2={r2_local} out={merged} outu=/dev/null 2>{log_file}",
+        f"bbmerge.sh in={r1_local} in2={r2_local} "
+        f"out={merged_tmp} outu1={unmerged_r1} outu2={unmerged_r2} "
+        f"2>{log_file}",
         shell=True
     )
-    if result.returncode != 0:
-        print(f"  WARNING: BBMerge returned non-zero for {sample_id} — check {log_file}")
 
-    n_merged = int(subprocess.check_output(f"zcat {merged} | wc -l", shell=True)) // 4
-    print(f"[{sample_id}] {n_merged} merged reads written to {merged}")
+    if result.returncode != 0:
+        # BBMerge binary failed (e.g. missing jar); fall back to raw cat
+        print(f"  WARNING: BBMerge failed for {sample_id} — falling back to raw R1+R2 concatenation")
+        subprocess.run(f"cat {r1_local} {r2_local} > {merged}", shell=True, check=True)
+    else:
+        # Combine merged consensus reads + unmerged R1 + unmerged R2
+        subprocess.run(f"cat {merged_tmp} {unmerged_r1} {unmerged_r2} > {merged}",
+                       shell=True, check=True)
+        for f in [merged_tmp, unmerged_r1, unmerged_r2]:
+            if os.path.exists(f):
+                os.remove(f)
+
+    n_reads = int(subprocess.check_output(f"zcat {merged} | wc -l", shell=True)) // 4
+    print(f"[{sample_id}] {n_reads} reads written to {merged}")
 
     os.remove(r1_local)
     os.remove(r2_local)

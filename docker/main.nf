@@ -28,19 +28,8 @@ params.peptide_table    = params.peptide_table ?: "/phipflow/data/peptide_table.
 params.reads_prefix     = params.reads_prefix ?: "/phipflow"
 params.results          = "$PWD/results/"
 
-log.info """\
-P H I P - F L O W!
-Matsen, Overbaugh, and Minot Labs
-Fred Hutchinson CRC, Seattle WA
-================================
-sample_table    : $params.sample_table
-peptide_table   : $params.peptide_table
-results         : $params.results
-
-"""
-
-/* 
- * Import modules 
+/*
+ * Import modules
  */
 nextflow.enable.dsl=2
 
@@ -50,5 +39,14 @@ include { DSOUT } from './workflows/output.nf'
 include { AGG } from './workflows/aggregate.nf'
 
 workflow {
+    log.info """\
+P H I P - F L O W!
+Matsen, Overbaugh, and Minot Labs
+Fred Hutchinson CRC, Seattle WA
+================================
+sample_table    : $params.sample_table
+peptide_table   : $params.peptide_table
+results         : $params.results
+"""
     ALIGN | STATS | DSOUT | AGG
 }
