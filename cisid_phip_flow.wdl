@@ -150,6 +150,13 @@ for _, row in df.iterrows():
     os.remove(r2_local)
 
 print("All samples downloaded and merged.")
+
+# Rewrite sample_table.csv with fastq_filepath column for phip-flow.
+# fastq_filepath is the filename only; reads_prefix supplies the directory.
+df["fastq_filepath"] = df["sample_ID"].apply(lambda sid: f"{sid}.fastq.gz")
+df = df.drop(columns=["R1_cloud_filepath", "R2_cloud_filepath"], errors="ignore")
+df.to_csv("/phipflow/data/sample_table.csv", index=False)
+print("Rewrote sample_table.csv with fastq_filepath column.")
 CODE
 
         df -h
@@ -157,7 +164,7 @@ CODE
         CMD="nextflow run main.nf --ansi-log false"
         CMD="$CMD --sample_table /phipflow/data/sample_table.csv"
         CMD="$CMD --peptide_table /phipflow/data/peptide_table.csv"
-        CMD="$CMD --reads_prefix /phipflow"
+        CMD="$CMD --reads_prefix /phipflow/data/seq"
 
         # Read length (only pass if non-default)
         if [[ ~{read_length} -ne 125 ]]; then
