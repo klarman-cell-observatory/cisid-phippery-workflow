@@ -120,7 +120,7 @@ CODE
         memory:      "2G"
         disks:       "local-disk 10 HDD"
         preemptible: 3
-        zones:       "us-central1-d"
+        zone:        "us-central1-d"
     }
 }
 
@@ -201,7 +201,7 @@ task download_and_merge {
         memory:      "8G"
         disks:       "local-disk 50 HDD"
         preemptible: preemptible
-        zones:       zone
+        zone:        zone
     }
 }
 
