@@ -1,32 +1,43 @@
 /*
  * This Source Code Form is subject to the terms of the GNU GENERAL PUBLIC LICENCE
- * License, v. 3.0. 
+ * License, v. 3.0.
  */
 
 
-/* 
+/*
  * 'PhIP-Flow' - A Nextflow pipeline for running common phip-seq analysis workflows
- * 
+ *
  * Fred Hutchinson Cancer Research Center, Seattle WA.
- * 
+ *
  * Jared Galloway
  * Kevin Sung
  * Sam Minot
- * Erick Matsen 
+ * Erick Matsen
  */
 
-/* 
+/*
  * Enable DSL 2 syntax
  */
 nextflow.enable.dsl = 2
 
 /*
  * Define the default parameters - example data get's run by default
- */ 
+ */
 params.sample_table     = params.sample_table ?: "/phipflow/data/sample_table.csv"
 params.peptide_table    = params.peptide_table ?: "/phipflow/data/peptide_table.csv"
 params.reads_prefix     = params.reads_prefix ?: "/phipflow"
 params.results          = "$PWD/results/"
+
+log.info """\
+P H I P - F L O W!
+Matsen, Overbaugh, and Minot Labs
+Fred Hutchinson CRC, Seattle WA
+================================
+sample_table    : $params.sample_table
+peptide_table   : $params.peptide_table
+results         : $params.results
+
+"""
 
 /*
  * Import modules
@@ -39,14 +50,5 @@ include { DSOUT } from './workflows/output.nf'
 include { AGG } from './workflows/aggregate.nf'
 
 workflow {
-    log.info """\
-P H I P - F L O W!
-Matsen, Overbaugh, and Minot Labs
-Fred Hutchinson CRC, Seattle WA
-================================
-sample_table    : $params.sample_table
-peptide_table   : $params.peptide_table
-results         : $params.results
-"""
     ALIGN | STATS | DSOUT | AGG
 }

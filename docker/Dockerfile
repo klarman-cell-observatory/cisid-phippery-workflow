@@ -75,7 +75,8 @@ RUN apt-get update && apt-get install -y \
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
-# Install Nextflow
+# Install Nextflow — pin to 23.10.0 (pre-strict-DSL2 emit enforcement)
+ENV NXF_VER=23.10.0
 RUN curl -s https://get.nextflow.io | bash && \
     mv nextflow /usr/local/bin/ && \
     chmod +x /usr/local/bin/nextflow
