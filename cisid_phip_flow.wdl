@@ -66,7 +66,7 @@ workflow phippery_flow {
     }
 
     output {
-        String outs = run_phippery_flow.outs_files
+        File outs = run_phippery_flow.outs_files
     }
 }
 
@@ -234,7 +234,7 @@ task run_phippery_flow {
     }
 
     output {
-        String outs_files = "${output_directory}/${output_prefix}_outs.txt"
+        File outs_files = "${output_prefix}_outs.txt"
     }
 
     command <<<
@@ -304,11 +304,16 @@ CODE
         echo "Running: $CMD"
         eval $CMD
 
+        # ── Decompress result files before export ─────────────────────────
+        find /phipflow/results/ -name "*.gz" -exec gunzip {} \; 2>/dev/null || true
+
         # ── Upload results + logs ──────────────────────────────────────────
         gcloud storage cp -r /phipflow/results/ ~{output_directory}/
         gcloud storage cp /phipflow/data/seq/*_bbmerge.log ~{output_directory}/bbmerge_logs/ || true
 
-        touch "~{output_directory}/~{output_prefix}_outs.txt"
+        # Sentinel file created locally so Cromwell tracks it as a real output
+        touch "~{output_prefix}_outs.txt"
+        gcloud storage cp "~{output_prefix}_outs.txt" ~{output_directory}/
     >>>
 
     runtime {
